@@ -1,6 +1,8 @@
 package github.arusland.markplay.java
 
 import github.arusland.markplay.core.LanguageProvider
+import github.arusland.markplay.maven.MavenDependencyParser
+import github.arusland.markplay.maven.MavenDependencyResolver
 import github.arusland.markplay.util.ExecUtil
 import github.arusland.markplay.util.StringUtil.NEWLINE
 import github.arusland.markplay.util.writeFrom
@@ -14,12 +16,23 @@ import java.nio.file.Path
 import java.nio.file.Paths
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import java.util.stream.Collectors
+import java.util.stream.Stream
 
 class JavaProvider : LanguageProvider {
+    private val dependencyParser = MavenDependencyParser()
+    private val dependencyResolver = MavenDependencyResolver()
 
     override fun execute(code: String, output: OutputStream): Any? {
         val tempDir = createTempDir()
         try {
+            // parse dependencies
+            val dependencies = dependencyParser.parseFromComment(code)
+            // resolve dependencies
+            val jars = dependencyResolver.resolveDependencies(dependencies)
+            val allUrls = Stream.concat(Stream.of(tempDir.toUri().toURL()), jars.stream())
+                .collect(Collectors.toList())
+            val finalClassPath = allUrls.joinToString(separator = ":")
             // write code to temp file
             val className = extractClassName(code)
             val javaFile = tempDir.resolve("$className.java")
@@ -28,14 +41,14 @@ class JavaProvider : LanguageProvider {
             val javacPath = javaBinDir.resolve("javac").toString()
             // compile temp file
             log.debug("Writing code to temp file and compile: {}", javaFile)
-            val compileCmd = listOf(javacPath, javaFile.toString())
+            val compileCmd = listOf(javacPath, "-cp", finalClassPath, javaFile.toString())
             val compileStdOutput = StringWriter()
             val compileErrorOutput = StringWriter()
-            val complileExitCode = ExecUtil.runCommand(compileCmd, compileStdOutput, compileErrorOutput)
-            if (complileExitCode != 0) {
+            val compileExitCode = ExecUtil.runCommand(compileCmd, compileStdOutput, compileErrorOutput)
+            if (compileExitCode != 0) {
                 // TODO: handle error output in different way
                 output.writeFrom(compileStdOutput)
-                compileStdOutput.write("=====compilation failed with code: $complileExitCode =====")
+                compileStdOutput.write("=====compilation failed with code: $compileExitCode =====")
                 compileStdOutput.write(NEWLINE)
                 output.write(removeTempPath(compileErrorOutput, tempDir))
 
@@ -44,8 +57,7 @@ class JavaProvider : LanguageProvider {
             log.debug("Running compiled class: {} in {}", className, tempDir)
             // run compiled class
             val javaPath = javaBinDir.resolve("java").toString()
-            val javaClassPath = tempDir.toString()
-            val runCmd = listOf(javaPath, "-cp", javaClassPath, className)
+            val runCmd = listOf(javaPath, "-cp", finalClassPath, className)
             val runOutput = StringWriter()
             val runErrorOutput = StringWriter()
             val runExitCode = ExecUtil.runCommand(runCmd, runOutput, runErrorOutput)

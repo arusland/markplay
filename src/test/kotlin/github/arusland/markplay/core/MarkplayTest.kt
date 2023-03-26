@@ -51,6 +51,18 @@ internal class MarkplayTest {
     }
 
     @Test
+    fun testExecJavaCodeWithDependency() {
+        val markplay = Markplay()
+        val samplePath = ResourceUtil.getResourcePath("/samples/JavaWithDependency.md")
+        val writer = StringWriter()
+        markplay.exec(samplePath, writer)
+
+        val expected = ResourceUtil.getResourceAsString("/samples/JavaWithDependency.expected.md")
+
+        assertEquals(expected, writer.toString())
+    }
+
+    @Test
     fun testExecWhenCodeBlockNotClosed() {
         val markplay = Markplay()
         val markdown = ResourceUtil.getResourceAsString("/samples/UnclosedCodeBlock.md")

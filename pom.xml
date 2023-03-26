@@ -19,6 +19,7 @@
         <kotlin.version>1.8.0</kotlin.version>
         <slf4j-api.version>2.0.5</slf4j-api.version>
         <logback.version>1.4.6</logback.version>
+        <naether.version>0.15.8</naether.version>
     </properties>
 
     <build>
@@ -92,6 +93,36 @@
                 <exclusion>
                     <groupId>org.yaml</groupId>
                     <artifactId>snakeyaml</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.jcraft</groupId>
+            <artifactId>jsch</artifactId>
+            <version>0.1.55</version>
+        </dependency>
+        <dependency>
+            <groupId>org.codehaus.plexus</groupId>
+            <artifactId>plexus-utils</artifactId>
+            <version>3.5.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.asynchttpclient</groupId>
+            <artifactId>async-http-client</artifactId>
+            <version>2.12.3</version>
+        </dependency>
+        <dependency>
+            <groupId>com.tobedevoured.naether</groupId>
+            <artifactId>core</artifactId>
+            <version>${naether.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-simple</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.ning</groupId>
+                    <artifactId>async-http-client</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
