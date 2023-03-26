@@ -1,17 +1,26 @@
 package github.arusland.markplay.parser
 
-import java.io.FileWriter
+import github.arusland.markplay.render.MarkdownRender
+import github.arusland.markplay.util.ResourceUtil
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Test
+import java.io.StringWriter
 
 class MarkdownParserTest {
-    @org.junit.jupiter.api.Test
-    fun parse() {
+    @Test
+    fun parseAndRender() {
         val parser = MarkdownParser()
-        val markdown = javaClass.getResourceAsStream("/samples/SIMPLE1.md")
-            .use { it?.reader()?.readText() } ?: throw Exception("Can't read resource file.")
-        val output = parser.parse(markdown)
+        val markdown = ResourceUtil.getResourceAsString("/samples/SIMPLE1.md")
+        val parts = parser.parse(markdown)
 
-        FileWriter("out.md").use { writer ->
-            writer.write(output)
+        assertEquals(listOf(PartType.Text, PartType.Code, PartType.Text), parts.map { it.type })
+
+        // rendered parts should be equal to original markdown
+        val render = MarkdownRender()
+        StringWriter().use { writer ->
+            render.write(parts, writer)
+
+            assertEquals(markdown, writer.toString())
         }
     }
 }

@@ -6,3 +6,8 @@ This is a sample file with single code block
 println "Hello World"
 ```
 
+Output:
+```
+Hello World
+```
+
