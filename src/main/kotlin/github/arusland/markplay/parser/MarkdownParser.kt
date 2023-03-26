@@ -45,12 +45,29 @@ class MarkdownParser {
             }
         }
 
-        if (codeBlockStart != null) {
-            result.add(Code(codeBlockStart!!, sb.toString(), "```"))
-        } else if (sb.isNotEmpty()) {
-            result.add(Text(sb.toString()))
+        if (sb.isNotEmpty() || codeBlockStart != null) {
+            // if code block is not closed, add it as text
+            val lastBlock = codeBlockStart?.let { it + NEWLINE } ?: ""
+            result.add(Text(lastBlock + sb.toString()))
         }
 
+        return mergeLastTextParts(result)
+    }
+
+    /**
+     * Merge last two text parts into single text part
+     */
+    private fun mergeLastTextParts(result: MutableList<Part>): List<Part> {
+        if (result.size > 1) {
+            val last = result[result.size - 1]
+            val lastPrev = result[result.size - 2]
+
+            if (last.type == PartType.Text && lastPrev.type == PartType.Text) {
+                result.removeLast()
+                result.removeLast()
+                result.add(Text(lastPrev.text + last.text))
+            }
+        }
         return result
     }
 

@@ -7,19 +7,37 @@ import github.arusland.markplay.parser.Text
 import github.arusland.markplay.render.MarkdownRender
 import github.arusland.markplay.util.StringUtil.NEWLINE
 import java.io.ByteArrayOutputStream
+import java.io.InputStream
 import java.io.Writer
 import java.nio.file.Path
+import kotlin.io.path.inputStream
 
 /**
  * Execute code blocks from markdown file and write as markdown
  */
 class Markplay {
     /**
+     * Execute code blocks from markdown and write resulting markdown to [output]
+     */
+    fun exec(text: String, output: Writer) {
+        exec(text.byteInputStream(), output)
+    }
+
+    /**
      * Execute code blocks from markdown file and write resulting markdown to [output]
      */
     fun exec(input: Path, output: Writer) {
+        input.inputStream().use { stream ->
+            exec(stream, output)
+        }
+    }
+
+    /**
+     * Execute code blocks from [InputStream] and write resulting markdown to [output]
+     */
+    fun exec(inputStream: InputStream, output: Writer) {
         val parser = MarkdownParser()
-        val parts = parser.parse(input).toMutableList()
+        val parts = parser.parse(inputStream).toMutableList()
         val codeBlocks = parts.filter { it.type == PartType.Code }.map { it as Code }
 
         codeBlocks.forEach { codeBlock ->
