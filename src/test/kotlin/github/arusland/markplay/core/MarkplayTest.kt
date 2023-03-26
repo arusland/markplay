@@ -27,13 +27,25 @@ internal class MarkplayTest {
     }
 
     @Test
-    fun testExec() {
+    fun testExecGroovyCode() {
         val markplay = Markplay()
         val samplePath = ResourceUtil.getResourcePath("/samples/SIMPLE1.md")
         val writer = StringWriter()
         markplay.exec(samplePath, writer)
 
         val expected = ResourceUtil.getResourceAsString("/samples/SIMPLE1.expected.md")
+
+        assertEquals(expected, writer.toString())
+    }
+
+    @Test
+    fun testExecJavaCode() {
+        val markplay = Markplay()
+        val samplePath = ResourceUtil.getResourcePath("/samples/JavaHelloWorld.md")
+        val writer = StringWriter()
+        markplay.exec(samplePath, writer)
+
+        val expected = ResourceUtil.getResourceAsString("/samples/JavaHelloWorld.expected.md")
 
         assertEquals(expected, writer.toString())
     }

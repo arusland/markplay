@@ -17,7 +17,7 @@
         <kotlin.compiler.jvmTarget>1.8</kotlin.compiler.jvmTarget>
         <junit.version>5.9.2</junit.version>
         <kotlin.version>1.8.0</kotlin.version>
-        <slf4j-api.version>1.7.36</slf4j-api.version>
+        <slf4j-api.version>2.0.5</slf4j-api.version>
         <logback.version>1.4.6</logback.version>
     </properties>
 
@@ -110,11 +110,6 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>${slf4j-api.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-simple</artifactId>
             <version>${slf4j-api.version}</version>
         </dependency>
 
